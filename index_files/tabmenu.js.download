@@ -1,0 +1,49 @@
+// tab Menu
+jQuery(document).on('click', '.tab_menu > li', function (e) {
+	
+	e.preventDefault();
+
+	if (jQuery(this).attr('data-url') != undefined) {
+
+		if (jQuery(this).attr('target') == '_blank') {
+
+			window.open(jQuery(this).attr('data-url'));
+
+		} else {
+
+			location.href = jQuery(this).attr('data-url');
+
+		}
+
+	} else {
+
+		jQuery(this).parent().children('li').removeClass('active');
+
+		var ind = jQuery(this).index();
+
+		jQuery(this).addClass('active');
+
+		jQuery(".tab_content[data-tab='" + jQuery(this).parent().attr('data-tab') + "']").children('div:not(.visible_tab)').hide();
+
+		jQuery(".tab_content[data-tab='" + jQuery(this).parent().attr('data-tab') + "']").children('div.visible_tab').css({"visibility":"hidden","height":"0"});
+
+		jQuery(".tab_content[data-tab='" + jQuery(this).parent().attr('data-tab') + "']").each(function () {
+
+			jQuery(this).children('div:not(.visible_tab)').eq(ind).fadeIn(500);
+
+			jQuery(this).children('div.info_wrap').eq(ind).fadeIn(500).css('display','flex');
+
+		});
+
+		jQuery(".tab_content[data-tab='" + jQuery(this).parent().attr('data-tab') + "']").each(function () {
+
+			jQuery(this).children('div:not(.visible_tab)').eq(ind).show();
+
+			jQuery(this).children('div.visible_tab').eq(ind).css({"visibility":"visible","height":"auto"});
+
+		});
+
+
+	}
+
+});

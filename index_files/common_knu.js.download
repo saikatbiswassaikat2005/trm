@@ -1,0 +1,356 @@
+/*png 사용 자바스크립트*/
+function setPng24(obj) { 
+  obj.width=obj.height=1; 
+  obj.className=obj.className.replace(/\bpng24\b/i,''); 
+  obj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='"+ obj.src +"',sizingMethod='image');" 
+  obj.src='';  
+  return ''; 
+}
+
+// 글자크기
+var defaultFontSize = 100;
+
+function zoomFont(val)
+{
+	var bodyArea = document.getElementById("body_content");
+	//var bodyArea = document.getElementsByTagName("body").item(0);
+	
+
+	if(val == 0)
+	{
+		defaultFontSize = 100;
+		bodyArea.style.fontSize = defaultFontSize + "%";
+	}
+	else
+	{
+		defaultFontSize += val;
+		bodyArea.style.fontSize = defaultFontSize + "%";
+	}
+}
+
+//새창
+function MM_openBrWindow(theURL,winName,features) { //v2.0
+  window.open(theURL,winName,features);
+}
+
+
+//메인화면 게시판 해당 탭메뉴 보이기
+function onNoticeShow(n) {
+	for(i=1;i<=6;i++) {
+		if(document.getElementById('notice0'+i+'_menu') != null) {
+			if(n == i) {
+				document.getElementById('notice0'+i+'_menu').style.visibility = 'visible';
+				document.getElementById('notice0'+i+'_add').style.visibility = 'visible';	
+				if(document.getElementById('notice0'+i) != null) {
+					var re = new RegExp('_off');
+					tabMenu = document.getElementById('noticeimg0'+i);
+					if(tabMenu){
+						if (tabMenu.tagName=="IMG") { 
+							_imgtype = tabMenu.src.substr(tabMenu.src.length-3,tabMenu.src.length-1);
+							var where = tabMenu.src.indexOf("_on."+_imgtype,0);
+							if(where==-1){ tabMenu.src = tabMenu.src.replace("."+_imgtype, "_on."+_imgtype);}
+						}else{
+							document.getElementById('notice0'+i).className = document.getElementById('notice0'+i).className.replace(re,'_on');
+						}
+					}else{
+						document.getElementById('notice0'+i).className = document.getElementById('notice0'+i).className.replace(re,'_on');
+					}
+				}
+			}else{
+				document.getElementById('notice0'+i+'_menu').style.visibility = 'hidden';
+				document.getElementById('notice0'+i+'_add').style.visibility = 'hidden';
+				if(document.getElementById('notice0'+i) != null) {
+					var re = new RegExp('_on');
+					tabMenu = document.getElementById('noticeimg0'+i);
+					if(tabMenu){
+						if (tabMenu.tagName=="IMG") { 
+							_imgtype = tabMenu.src.substr(tabMenu.src.length-3,tabMenu.src.length-1);
+							var where = tabMenu.src.indexOf("_on."+_imgtype,0);
+							if(where!=-1){ tabMenu.src = tabMenu.src.replace("_on."+_imgtype, "."+_imgtype);}
+						}else{
+							document.getElementById('notice0'+i).className = document.getElementById('notice0'+i).className.replace(re,'_off');
+						}
+					}else{
+					document.getElementById('notice0'+i).className = document.getElementById('notice0'+i).className.replace(re,'_off');
+					}
+				}
+			}
+		}
+	}		
+}
+
+
+//notice_showhide
+function MM_reloadPage(init) {  //reloads the window if Nav4 resized
+  if (init==true) with (navigator) {if ((appName=="Netscape")&&(parseInt(appVersion)==4)) {
+    document.MM_pgW=innerWidth; document.MM_pgH=innerHeight; onresize=MM_reloadPage; }}
+  else if (innerWidth!=document.MM_pgW || innerHeight!=document.MM_pgH) location.reload();
+}
+MM_reloadPage(true);
+
+function MM_findObj(n, d) { //v4.01
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+  if(!x && d.getElementById) x=d.getElementById(n); return x;
+}
+
+function MM_showHideLayers() { //v6.0
+  var i,p,v,obj,args=MM_showHideLayers.arguments;
+  for (i=0; i<(args.length-2); i+=3) if ((obj=MM_findObj(args[i]))!=null) { v=args[i+2];
+    if (obj.style) { obj=obj.style; v=(v=='show')?'visible':(v=='hide')?'hidden':v; }
+    obj.visibility=v; }
+}
+
+
+//프린트(새창)
+function contentPrint(section) {
+	var windowLeft = (screen.width-780)/2;
+//	var windowTop = (screen.height-480)/2;
+	var windowTop = 20;
+	var printURL = "/wbbs/wbbs/contents/index.action?menu_url=printPage&noDeco=true&section="+section;
+	window.open(printURL,"contents",'width=1000, height=620, menubar=no, scrollbars=yes,status=no,resizable=yes,top=' + windowTop + ',left=' + windowLeft + '');
+}
+
+function startPrint() {
+        var openerURL = opener.location.pathname;
+        var openerIndex = openerURL.lastIndexOf("/") + 1;
+        var openerPath = openerURL.substr(0, openerIndex);
+		openerPath = escape(openerPath);
+
+        var newContent = opener.document.getElementById("body_content").innerHTML;
+
+		newContent = newContent.replace(/images/gi,'/images');
+		//newContent = newContent.replace(/..\/images/gi,'/images');
+		newContent = newContent.replace(/\"images/gi,'\"/images');
+
+		newContent = escape(newContent)
+
+		newContent = AbsolutePath(newContent,"%22../",openerPath);
+		newContent = AbsolutePath(newContent,"%27../",openerPath);
+		newContent = AbsolutePath(newContent,"%3D../",openerPath);
+
+        document.getElementById("forPrint").innerHTML = unescape(newContent);
+        window.print();
+}
+
+function AbsolutePath(contentstr,findstr,restr){
+	var temp="";
+	var r;
+	do{
+		r=contentstr.indexOf(findstr,0);                                                  
+		if(r>0){
+			temp=temp+contentstr.substring(0,r+3);
+			temp=temp+restr;
+			contentstr=contentstr.substring(r+3,contentstr.length);
+		}
+	}while(r>0)
+	temp=temp+contentstr;
+	return temp;
+}
+
+
+function topNoticeShow(){
+		jQuery("#top_notice").slideDown(); 
+		jQuery("#notice_open").hide(); 
+		jQuery("#notice_close").show();
+		top2menuHideAll();
+}
+
+function topNoticeHide(){
+		jQuery("#top_notice").slideUp(); 
+		jQuery("#notice_open").show(); 
+		jQuery("#notice_close").hide();
+		top2menuHideAll();
+}
+
+//리사이즈시 게시물 내용의 이미지, 테이블 사이즈 변환
+tmp_cnt = 0; 
+real_table_w = new Array();
+real_img_w = new Array();
+function ContentResize()
+{
+	var board_w = jQuery("#viewcontent").width();
+	tmp_cnt++;
+	var container = document.getElementById("viewcontent");
+	if(container){
+		//alert(board_w);
+		var table_inner =	container.getElementsByTagName("table");
+		if(table_inner){
+			for (var i=0;i<table_inner.length;i++)	{
+				var table_obj = table_inner[i];
+				if(table_obj){
+					table_w = table_obj.width; // 테이블 원래 가로 크기
+					if(tmp_cnt == 1){ // 최초 1번만 실행
+						real_table_w[i] = table_w; // 테이블 원래 가로 크기 보관
+					}else{ //모바일 화면 방향 전환시
+						table_obj.style.width=real_table_w[i]+"px"; // 테이블 원래 가로 크기 변환
+					}
+					
+					if(board_w < table_w){ // 테이블 사이즈가 화면보다 클 경우 테이블 사이즈를 100%로 변환
+						table_obj.style.width="100%";
+					}
+				}
+			}
+		}
+
+		var img_inner =	container.getElementsByTagName("img");
+		if(img_inner){
+			for (var i=0;i<img_inner.length;i++)	{
+				var img_obj = img_inner[i];
+				if(img_obj){
+					img_w = img_obj.width; // 이미지 원래 가로 크기
+					if(tmp_cnt == 1){ // 최초 1번만 실행
+						real_img_w[i] = img_w; // 이미지 원래 가로 크기 보관
+					}else{ //모바일 화면 방향 전환시
+						img_obj.style.width=real_img_w[i]+"px"; // 이미지 원래 가로 크기 변환
+					}
+					
+					if(board_w < img_w){ // 이미지 사이즈가 화면보다 클 경우 이미지 사이즈를 100%로 변환
+						img_obj.style.width="100%";
+					}
+				}
+			}
+		}
+	}
+}
+
+/*
+function naver_map_api(Lat,Lng,mapid, maptitle){
+	var oSeoulCityPoint = new nhn.api.map.LatLng(Lat, Lng);
+	var defaultLevel = 11;
+	var oMap = new nhn.api.map.Map(document.getElementById(mapid), {
+					point : oSeoulCityPoint,
+					zoom : defaultLevel,
+					enableWheelZoom : true,
+					enableDragPan : true,
+					enableDblClickZoom : false,
+					mapMode : 0,
+					activateTrafficMap : false,
+					activateBicycleMap : false,
+					minMaxLevel : [ 1, 14 ],
+					size : new nhn.api.map.Size(800, 480)           });
+
+	var oSlider = new nhn.api.map.ZoomControl();
+	oMap.addControl(oSlider);
+	oSlider.setPosition({
+		top : 10,
+		left : 10
+	});
+
+	var oMapTypeBtn = new nhn.api.map.MapTypeBtn();
+	oMap.addControl(oMapTypeBtn);
+	oMapTypeBtn.setPosition({
+		bottom : 10,
+		right : 80
+	});
+
+	var oThemeMapBtn = new nhn.api.map.ThemeMapBtn();
+	oThemeMapBtn.setPosition({
+		bottom : 10,
+		right : 10
+	});
+	oMap.addControl(oThemeMapBtn);
+
+	var trafficButton = new nhn.api.map.TrafficMapBtn(); // - 실시간 교통지도 버튼 선언
+	trafficButton.setPosition({
+		bottom:10,
+		right:150
+	}); // - 실시간 교통지도 버튼 위치 지정
+	oMap.addControl(trafficButton);
+
+
+   //아래는 위에서 지정한 좌표에 마커를 표시하는 소스 입니다.
+   var oSize = new nhn.api.map.Size(28, 37);
+   var oOffset = new nhn.api.map.Size(14, 37);
+   var oIcon = new nhn.api.map.Icon('http://static.naver.com/maps2/icons/pin_spot2.png', oSize, oOffset);
+   //icon 이미지를 바꿔서 사용할 수 있습니다.
+   var oMarker = new nhn.api.map.Marker(oIcon, { title : maptitle }); 
+   oMarker.setPoint(oSeoulCityPoint);
+   oMap.addOverlay(oMarker);
+   // 마커라벨 표시
+   var oLabel1 = new nhn.api.map.MarkerLabel(); // 마커 라벨 선언
+   oMap.addOverlay(oLabel1);// 마커 라벨 지도에 추가. 기본은 라벨이 보이지 않는 상태로 추가됨
+   oLabel1.setVisible(true, oMarker);// 마커 라벨 보이기
+
+
+}
+*/
+
+function naver_map_api(Lat,Lng,mapid, maptitle){
+	
+	var targetPoint = new naver.maps.LatLng(Lat, Lng);
+	
+	var map = new naver.maps.Map(document.getElementById(mapid), {
+		center: targetPoint,
+	    size: new naver.maps.Size(800, 480),
+	    mapTypeControl: true,
+	    mapTypeControlOptions: {
+	        style: naver.maps.MapTypeControlStyle.DROPDOWN
+	    },
+	    zoom: 11,
+	    zoomControl: true,
+	    zoomControlOptions: {
+	        position: naver.maps.Position.TOP_LEFT
+	    }
+	});
+	
+	map.setOptions("draggable", true);
+	map.setOptions("scrollWheel", true);
+	map.setOptions("minZoom", 1);
+	map.setOptions("maxZoom", 14);
+	
+	/* 마커 */
+	var markerOptions = {
+	    position: targetPoint,
+	    icon: {
+	        url: 'http://static.naver.net/maps/v3/pin_default.png',
+	        size: new naver.maps.Size(22, 35),
+	        anchor: new naver.maps.Point(11, 35)
+	    }
+	};
+	
+	var marker = new naver.maps.Marker(markerOptions);
+	marker.setMap(map); // 추가
+	
+	/* 실시간 교통상황 */
+	var trafficLayer = new naver.maps.TrafficLayer({
+	    interval: 2000 // 2초마다 새로고침
+	});
+
+	naver.maps.Event.addListener(map, 'trafficLayer_changed', function(trafficLayer) {
+	    if (trafficLayer) {
+	        btn.addClass('control-on');
+	        $("#autorefresh").parent().show();
+	        $("#autorefresh")[0].checked = true;
+	    } else {
+	        btn.removeClass('control-on');
+	        $("#autorefresh").parent().hide();
+	    }
+	});
+
+	trafficLayer.setMap(map);
+
+}
+
+function winOpen(url, popName, popupW, popupH) {
+	var popup_x = null;
+	var popup_y = null;
+	var options = null;
+	var popupName = null;
+	
+	if( popupW == null ) popupW = 500;
+	if( popupH == null ) popupH = 500;
+	if( popName == null ) popupName = "";
+	else popupName = popName;
+	
+	popup_x = (screen.availWidth - popupW) / 2;
+	popup_y = (screen.availHeight - popupH) / 2;
+	
+	//window.open(url, '', 'width='+popup_width+', height='+popup_height+', left='+popup_x+', top='+popup_y);
+	options = "width="+popupW+", height="+popupH+", left="+popup_x+", top="+popup_y+", toolbar=no, scrollbars=yes, resizable=yes";
+	
+	window.open(url, popupName, options);
+	
+}
